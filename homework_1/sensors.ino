@@ -1,9 +1,13 @@
 #include <Keypad.h>
 
-
 //STRUCTURES FOR SENSORS
+//1 - TEMPERATURE SENSOR
+//2 - LIGHT INTENSITY SENSOR
+//3 - PIR SENSOR
+//4 - ULTRASONIC SENSOR
+//5 - SMOKE SENSOR
 
-enum {sensorTemp, sensorPIR, sensorLight, sensorDistance, sensorGas, nrOfSensors};
+enum {sensorTemp, sensorLight, sensorPIR, sensorDistance, sensorGas, nrOfSensors};
 char listCommands[5] = {'1', '2', '3', '4', '5'};
 
 typedef struct {
@@ -48,6 +52,18 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS)
 void setupLeds() {
   pinMode(RED_PIN, OUTPUT);
   pinMode(GREEN_PIN, OUTPUT);
+}
+
+void activateRedLed(){
+  digitalWrite(RED_PIN, HIGH);
+  delay(3000);
+  digitalWrite(RED_PIN, LOW);
+}
+
+void activateGreenLed(){
+  digitalWrite(GREEN_PIN, HIGH);
+  delay(3000);
+  digitalWrite(GREEN_PIN, LOW);
 }
 
 //TEMPERATURE SENSOR
@@ -241,15 +257,11 @@ void loop()
     Serial.println();
     
     float threshold = getThreshold(index);
-    if(value > threshold) {
-      digitalWrite(RED_PIN, HIGH);
-      delay(3000);
-      digitalWrite(RED_PIN, LOW);
+    if(value >= threshold) {
+      activateRedLed();
     }
     else {
-      digitalWrite(GREEN_PIN, HIGH);
-      delay(3000);
-      digitalWrite(GREEN_PIN, LOW);
+      activateGreenLed();
     }
   }
   else {
