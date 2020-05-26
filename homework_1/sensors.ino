@@ -1,5 +1,19 @@
 #include <Keypad.h>
 
+
+//STRUCTURES FOR SENSORS
+
+enum {sensorTemp, sensorPIR, sensorLight, sensorDistance, sensorGas, nrOfSensors};
+char listCommands[5] = {'1', '2', '3', '4', '5'};
+
+typedef struct {
+  float (*get) (void);
+  float threshold;
+  char paramName[20];
+  char unitName[10];
+} sensorType;
+
+
 //CONFIGURE KEYPAD
 const byte ROWS = 4;
 const byte COLS = 4;
@@ -25,18 +39,6 @@ bool checkCommand(char command){
 }
 
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
-
-//STRUCTURES FOR SENSORS
-
-enum {sensorTemp, sensorPIR, sensorLight, sensorDistance, nrOfSensors};
-char listCommands[4] = {'1', '2', '3', '4'};
-
-typedef struct {
-  float (*get) (void);
-  float threshold;
-  char paramName[20];
-  char unitName[10];
-} sensorType;
 
 //CONFIGURE LED PINS
 
@@ -129,6 +131,26 @@ float getDistance() {
   return distance;
 }
 
+//GAS SENSOR
+
+#define GAS_PIN A4
+
+void setupGas(){
+  pinMode(GAS_PIN, INPUT);
+}
+
+float getGas(){
+  int stateGas;
+  float rawGas = analogRead(GAS_PIN);
+  if (rawGas >= 150) {
+    stateGas = 1;
+  }
+  else {
+    stateGas = 0;
+  }
+  return stateGas;
+}
+
 
 sensorType mySensors[nrOfSensors] = {
   {
@@ -154,6 +176,12 @@ sensorType mySensors[nrOfSensors] = {
     150.0,
     "Distance",
     "cm"
+  },
+  {
+    getGas,
+    1.0,
+    "Smoke",
+    "yes/no"
   }
 };
 
@@ -190,6 +218,7 @@ void setup()
   setupLight();
   setupPIR();
   setupUltrasonic();
+  setupGas();
 }
 
 void loop()
